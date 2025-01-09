@@ -12,7 +12,7 @@ options = webdriver.ChromeOptions()
 # inicia a instancia do chrome webdriver 
 driver = webdriver.Chrome(service=service, options=options)
 
-url = 'https://books.toscrape.com/'
+url = 'https://www.livrodosonho.com/significado-dos-sonhos'
 
 driver.get(url)
 
@@ -24,7 +24,7 @@ titlesLivros = [title.get_attribute('title') for title in todosLivros]
 print(titlesLivros)
 
 # entrando em um link
-todosLivros[0].click()
+todosLivros[2].click()
 driver.back()
 
 qntEstoque = driver.find_element(By.CLASS_NAME,'instock').text #nome original da classe = instock availabillity, passamos apenas oque está antes do espaço
