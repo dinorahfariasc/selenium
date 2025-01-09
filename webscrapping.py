@@ -12,7 +12,7 @@ options = webdriver.ChromeOptions()
 # inicia a instancia do chrome webdriver 
 driver = webdriver.Chrome(service=service, options=options)
 
-url = 'https://www.livrodosonho.com/significado-dos-sonhos'
+url = 'https://books.toscrape.com/'
 
 driver.get(url)
 
