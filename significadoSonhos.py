@@ -18,12 +18,13 @@ url = 'https://www.livrodosonho.com/significado-dos-sonhos'
 
 driver.get(url)
 
-# procure pelo titulo do elemento
+# procure pelo titulo do elemento, clicando no link
 
-elemento = driver.find_element(By.LINK_TEXT, "Sonhos A").text
+element = driver.find_element(By.LINK_TEXT, "Sonhos A")
+driver.execute_script("arguments[0].scrollIntoView();", element)
+element.click()
+print(element.text)
 
-
-print(elemento)
 # # pegando apenas o titulo das tags a (livros)
 # titlesLivros = [title.get_attribute('title') for title in todosLivros]
 
