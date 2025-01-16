@@ -5,34 +5,30 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# iniciando uma sessão do webdriver
-service = Service()
+# Caminho do ChromeDriver
+service = Service("C:/Users/UFRN/Downloads/chromedriver-win64/chromedriver.exe")
 
-# webdriver.chromeoption é usado para definir a preferencia para o browser do chrome
+# Configurações do navegador Brave
 options = webdriver.ChromeOptions()
+options.binary_location = "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
 
-# inicia a instancia do chrome webdriver 
+# Inicializa a instância do Brave WebDriver
 driver = webdriver.Chrome(service=service, options=options)
 
+# URL do site
 url = 'https://www.livrodosonho.com/significado-dos-sonhos'
-
 driver.get(url)
 
-# procure pelo titulo do elemento, clicando no link
-
-element = driver.find_element(By.LINK_TEXT, "Sonhos A")
-driver.execute_script("arguments[0].scrollIntoView();", element)
-element.click()
-print(element.text)
-
-# # pegando apenas o titulo das tags a (livros)
-# titlesLivros = [title.get_attribute('title') for title in todosLivros]
-
-# print(titlesLivros)
-
-# # entrando em um link
-# todosLivros[2].click()
-# driver.back()
-
-# qntEstoque = driver.find_element(By.CLASS_NAME,'instock').text #nome original da classe = instock availabillity, passamos apenas oque está antes do espaço
-# print(qntEstoque)
+# Procura e clica no link "Sonhos A"
+try:
+    element = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, "Sonhos A"))
+    )
+    driver.execute_script("arguments[0].scrollIntoView();", element)
+    element.click()
+    print(element.text)
+except Exception as e:
+    print(f"Erro: {e}")
+finally:
+    # Fecha o navegador após o término do script
+    driver.quit()
