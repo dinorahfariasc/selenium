@@ -1,10 +1,11 @@
-import pandas as pd
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
+# Configuração do WebDriver para Brave
 # Caminho do ChromeDriver
 service = Service("C:/Users/UFRN/Downloads/chromedriver-win64/chromedriver.exe")
 
@@ -15,20 +16,49 @@ options.binary_location = "C:/Program Files/BraveSoftware/Brave-Browser/Applicat
 # Inicializa a instância do Brave WebDriver
 driver = webdriver.Chrome(service=service, options=options)
 
-# URL do site
+# URL inicial
 url = 'https://www.livrodosonho.com/significado-dos-sonhos'
 driver.get(url)
 
-# Procura e clica no link "Sonhos A"
+# Espera carregar todos os elementos com links para sonhos
 try:
-    element = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.LINK_TEXT, "Sonhos A"))
+    # Localiza os elementos de links de sonhos
+    sonhos_links = WebDriverWait(driver, 10).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.secondary.button"))
     )
-    driver.execute_script("arguments[0].scrollIntoView();", element)
-    element.click()
-    print(element.text)
+    
+    # Armazena os dados coletados
+    sonhos_dados = []
+
+    # Itera sobre cada link de sonho
+    for link in sonhos_links:
+        # Abre o link em uma nova aba
+        driver.execute_script("window.open(arguments[0].href, '_blank');", link)
+        driver.switch_to.window(driver.window_handles[1])  # Muda para a nova aba
+
+        # Aguarda o carregamento do conteúdo do sonho
+        try:
+            titulo = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "div.post-entry p strong"))
+            ).text
+
+            conteudo = driver.find_element(By.CSS_SELECTOR, "div.post-entry").text
+
+            # Processa o conteúdo para salvar no formato desejado
+            sonhos_dados.append(f"{titulo}\n{conteudo}\n\n")
+        except Exception as e:
+            print(f"Erro ao processar conteúdo: {e}")
+        finally:
+            # Fecha a aba e volta para a aba principal
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
+
+    # Salva os dados em um arquivo TXT
+    with open("significados_sonhos.txt", "w", encoding="utf-8") as file:
+        file.writelines(sonhos_dados)
+
 except Exception as e:
-    print(f"Erro: {e}")
+    print(f"Erro geral: {e}")
 finally:
-    # Fecha o navegador após o término do script
+    # Fecha o navegador
     driver.quit()
