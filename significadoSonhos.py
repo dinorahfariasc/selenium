@@ -62,3 +62,21 @@ except Exception as e:
 finally:
     # Fecha o navegador
     driver.quit()
+
+
+
+# try:
+#             titulo = WebDriverWait(driver, 10).until(
+#                 EC.presence_of_element_located((By.CSS_SELECTOR, "div.post-entry p strong"))
+#             ).text
+
+#             conteudo = driver.find_element(By.CSS_SELECTOR, "div.post-entry").text
+
+#             # Processa o conteúdo para salvar no formato desejado
+#             sonhos_dados.append(f"{titulo}\n{conteudo}\n\n")
+#         except Exception as e:
+#             print(f"Erro ao processar conteúdo: {e}")
+#         finally:
+#             # Fecha a aba e volta para a aba principal
+#             driver.close()
+#             driver.switch_to.window(driver.window_handles[0])

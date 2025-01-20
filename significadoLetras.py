@@ -6,45 +6,64 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 
 # Configuração do WebDriver para Brave
-# Caminho do ChromeDriver
-service = Service("C:/Program Files/chromedriver-win64/chromedriver.exe") #"C:/Program Files/chromedriver-win64/chromedriver.exe" // C:/Users/UFRN/Downloads/chromedriver-win64/chromedriver.exe"
-
-# Configurações do navegador Brave
+service = Service("C:/Users/UFRN/Downloads/chromedriver-win64/chromedriver.exe")
 options = webdriver.ChromeOptions()
-options.binary_location = "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe" #
+options.binary_location = "C:/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe"
 
-# Inicializa a instância do Brave WebDriver
 driver = webdriver.Chrome(service=service, options=options)
 
-# URL inicial
 url = 'https://www.livrodosonho.com/significado-dos-sonhos'
 driver.get(url)
 
-# Espera carregar todos os elementos com links para sonhos
 try:
-    # Localiza os elementos de links de sonhos
-    sonhos_links = WebDriverWait(driver, 10).until(
+    letras_links = WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.secondary.button"))
     )
-    
-    # Armazena os dados coletados
-    sonhos_dados = []
 
-    # Itera sobre cada link de sonho
-    for link in sonhos_links:
-        # Abre o link em uma nova aba
-        driver.execute_script("window.open(arguments[0].href, '_blank');", link)
-        driver.switch_to.window(driver.window_handles[1])  # Muda para a nova aba
+    for i in range(len(letras_links)):
+        # Recarrega os links das letras após cada interação
+        letras_links = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.secondary.button"))
+        )
+        letra_link = letras_links[i]
+        letra = letra_link.text.strip()
+        print(f"Processando a letra: {letra}")
 
-        # Aguarda o carregamento do conteúdo do sonho
+        letra_link.click()
+        time.sleep(3)
 
+        significados_links = WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.secondary.button"))
+        )
 
-    # Salva os dados em um arquivo TXT
-    # with open("Sonhos_A.txt", "w", encoding="utf-8") as file:
-    #     file.writelines(sonhos_dados)
+        significados_links = significados_links[::20]
+        significados_dados = []
+
+        for significado_link in significados_links:
+            try:
+                driver.execute_script("window.open(arguments[0].href, '_blank');", significado_link)
+                WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+                driver.switch_to.window(driver.window_handles[1])
+
+                titulo = WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "div.post-entry p strong"))
+                ).text
+
+                conteudo = driver.find_element(By.CSS_SELECTOR, "div.post-entry").text
+                significados_dados.append(f"{titulo}\n{conteudo}\n\n")
+
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+            except Exception as e:
+                print(f"Erro ao processar o link: {e}")
+                if len(driver.window_handles) > 1:
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[0])
+
+        with open(f"significados_letra_{letra}.txt", "w", encoding="utf-8") as file:
+            file.writelines(significados_dados)
 
 except Exception as e:
     print(f"Erro geral: {e}")
 finally:
-    # Fecha o navegador
     driver.quit()
